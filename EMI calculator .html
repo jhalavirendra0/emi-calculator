@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced EMI Calculator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #74ebd5, #acb6e5);
+            padding: 20px;
+        }
+
+        .calculator-container {
+            background: #fff;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 500px;
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            color: #555;
+            margin-bottom: 5px;
+        }
+
+        input[type="number"], input[type="range"] {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        input[type="number"]:focus, input[type="range"]:focus {
+            border-color: #74ebd5;
+        }
+
+        .range-value {
+            font-size: 14px;
+            color: #777;
+            text-align: right;
+            margin-top: 5px;
+        }
+
+        .advanced-options {
+            margin: 20px 0;
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 10px;
+        }
+
+        .advanced-options h3 {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #74ebd5, #acb6e5);
+            border: none;
+            border-radius: 5px;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.3s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            background: linear-gradient(135deg, #acb6e5, #74ebd5);
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f1f9ff;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .result p {
+            font-size: 16px;
+            color: #333;
+            margin: 5px 0;
+        }
+
+        .result p span {
+            font-weight: 600;
+            color: #74ebd5;
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator-container">
+        <h2>Advanced EMI Calculator</h2>
+        <div class="input-group">
+            <label for="loan-amount">Loan Amount (₹)</label>
+            <input type="number" id="loan-amount" value="1000000" min="1000" step="1000">
+        </div>
+        <div class="input-group">
+            <label for="interest-rate">Interest Rate (% per annum)</label>
+            <input type="number" id="interest-rate" value="8.5" min="0.1" step="0.1">
+            <input type="range" id="interest-rate-range" value="8.5" min="0.1" max="20" step="0.1">
+            <div class="range-value" id="interest-rate-value">8.5%</div>
+        </div>
+        <div class="input-group">
+            <label for="tenure">Loan Tenure (Years)</label>
+            <input type="number" id="tenure" value="5" min="1" step="1">
+            <input type="range" id="tenure-range" value="5" min="1" max="30" step="1">
+            <div class="range-value" id="tenure-value">5 Years</div>
+        </div>
+
+        <div class="advanced-options">
+            <h3>Advanced Options</h3>
+            <div class="input-group">
+                <label for="prepayment">Prepayment Amount (₹)</label>
+                <input type="number" id="prepayment" value="0" min="0" step="1000">
+            </div>
+        </div>
+
+        <button onclick="calculateEMI()">Calculate EMI</button>
+
+        <div class="result" id="result">
+            <p>Monthly EMI: <span id="emi">₹0</span></p>
+            <p>Total Interest Payable: <span id="total-interest">₹0</span></p>
+            <p>Total Amount Payable: <span id="total-amount">₹0</span></p>
+        </div>
+    </div>
+
+    <script>
+        // Sync range inputs with number inputs
+        const interestRateInput = document.getElementById('interest-rate');
+        const interestRateRange = document.getElementById('interest-rate-range');
+        const interestRateValue = document.getElementById('interest-rate-value');
+        const tenureInput = document.getElementById('tenure');
+        const tenureRange = document.getElementById('tenure-range');
+        const tenureValue = document.getElementById('tenure-value');
+
+        interestRateInput.addEventListener('input', () => {
+            interestRateRange.value = interestRateInput.value;
+            interestRateValue.textContent = `${interestRateInput.value}%`;
+        });
+
+        interestRateRange.addEventListener('input', () => {
+            interestRateInput.value = interestRateRange.value;
+            interestRateValue.textContent = `${interestRateRange.value}%`;
+        });
+
+        tenureInput.addEventListener('input', () => {
+            tenureRange.value = tenureInput.value;
+            tenureValue.textContent = `${tenureInput.value} Years`;
+        });
+
+        tenureRange.addEventListener('input', () => {
+            tenureInput.value = tenureRange.value;
+            tenureValue.textContent = `${tenureRange.value} Years`;
+        });
+
+        function calculateEMI() {
+            const loanAmount = parseFloat(document.getElementById('loan-amount').value);
+            const interestRate = parseFloat(document.getElementById('interest-rate').value) / 100 / 12;
+            const tenure = parseFloat(document.getElementById('tenure').value) * 12;
+            const prepayment = parseFloat(document.getElementById('prepayment').value) || 0;
+
+            // Adjust loan amount for prepayment
+            const adjustedLoanAmount = loanAmount - prepayment;
+
+            if (adjustedLoanAmount <= 0) {
+                alert("Prepayment amount cannot be greater than or equal to the loan amount.");
+                return;
+            }
+
+            // EMI formula: EMI = [P x R x (1+R)^N] / [(1+R)^N - 1]
+            const emi = (adjustedLoanAmount * interestRate * Math.pow(1 + interestRate, tenure)) / (Math.pow(1 + interestRate, tenure) - 1);
+            const totalAmount = emi * tenure;
+            const totalInterest = totalAmount - adjustedLoanAmount;
+
+            // Display results
+            document.getElementById('emi').textContent = `₹${emi.toFixed(2)}`;
+            document.getElementById('total-interest').textContent = `₹${totalInterest.toFixed(2)}`;
+            document.getElementById('total-amount').textContent = `₹${totalAmount.toFixed(2)}`;
+        }
+    </script>
+</body>
+</html>
